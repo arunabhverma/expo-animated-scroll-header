@@ -16,10 +16,13 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@react-navigation/elements": "^1.3.31",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.28",
+    "expo-blur": "~13.0.2",
     "expo-constants": "~16.0.2",
     "expo-font": "~12.0.9",
+    "expo-image": "~1.13.0",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.23",
     "expo-splash-screen": "~0.27.5",
@@ -45,5 +48,6 @@
     "react-test-renderer": "18.2.0",
     "typescript": "~5.3.3"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@4.2.2+sha512.c44e283c54e02de9d1da8687025b030078c1b9648d2895a65aab8e64225bfb7becba87e1809fc0b4b6778bbd47a1e2ab6ac647de4c5e383a53a7c17db6c3ff4b"
 }

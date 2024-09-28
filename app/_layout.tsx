@@ -1,37 +1,67 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import {
+	DarkTheme,
+	DefaultTheme,
+	ThemeProvider,
+} from "@react-navigation/native";
+import { useColorScheme } from "react-native";
+import { Stack } from "expo-router";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+declare module "@react-navigation/native" {
+	export type ExtendedTheme = {
+		dark: boolean;
+		colors: {
+			primary: string;
+			background: string;
+			card: string;
+			text: string;
+			border: string;
+			notification: string;
+			subtitle: string;
+			paragraph: string;
+		};
+	};
+	export function useTheme(): ExtendedTheme;
+}
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+const dark = {
+	...DarkTheme,
+	colors: {
+		...DarkTheme.colors,
+		subtitle: "#EEEEEE",
+		paragraph: "#DDDDDD",
+	},
+};
+
+const light = {
+	...DefaultTheme,
+	colors: {
+		...DefaultTheme.colors,
+		subtitle: "#333333",
+		paragraph: "#222222",
+	},
+};
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-  );
+	const colorScheme = useColorScheme();
+	return (
+		<ThemeProvider value={colorScheme === "dark" ? dark : light}>
+			<Stack
+				screenOptions={{
+					headerTransparent: true,
+					headerTintColor:
+						colorScheme === "dark" ? dark.colors.text : light.colors.text,
+					headerBackTitleVisible: false,
+				}}
+			>
+				<Stack.Screen name="index" options={{ title: "Home" }} />
+				<Stack.Screen
+					name="city"
+					options={{
+						title: "",
+					}}
+				/>
+			</Stack>
+		</ThemeProvider>
+	);
 }
