@@ -16,17 +16,21 @@ import { BlurView } from "expo-blur";
 import { useHeaderHeight } from "@react-navigation/elements";
 import CityDetails from "@/components/CityDetails";
 
-const HEADER_HEIGHT = Dimensions.get("window").width;
+const IMAGE_URI =
+  "https://assets.vogue.in/photos/5ddd1c3ea7e434000831059d/2:3/w_2560%2Cc_limit/GILL5066.jpg";
+const BANNER_HEIGHT = Dimensions.get("window").width;
+const IMAGE_HEIGHT = 50;
+const EXTRA_PADDING = 20;
 
 const City = () => {
   const theme = useTheme();
-  const NativeHeaderHeight = useHeaderHeight();
   const { top, bottom } = useSafeAreaInsets();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useSharedValue(0);
-  const imageHeight = 50;
-  const padding = 20;
-  const cHeight = NativeHeaderHeight;
+
+  const HEADER_HEIGHT = useHeaderHeight();
+
+  const UPPER_BOUND = [0, BANNER_HEIGHT / 2];
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -37,20 +41,20 @@ const City = () => {
   const animatedHeaderStyle = useAnimatedStyle(() => {
     const height = interpolate(
       scrollOffset.value,
-      [0, HEADER_HEIGHT - cHeight],
-      [HEADER_HEIGHT, cHeight + 10],
+      [0, BANNER_HEIGHT / 2 + EXTRA_PADDING],
+      [BANNER_HEIGHT, HEADER_HEIGHT + 10],
       Extrapolation.CLAMP
     );
     const translateY = interpolate(
       scrollOffset.value,
-      [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-      [-HEADER_HEIGHT * 0.5, 0, 0],
+      [-BANNER_HEIGHT, 0, BANNER_HEIGHT],
+      [-BANNER_HEIGHT * 0.5, 0, 0],
       Extrapolation.CLAMP
     );
 
     const scale = interpolate(
       scrollOffset.value,
-      [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+      [-BANNER_HEIGHT, 0, BANNER_HEIGHT],
       [2, 1, 1],
       Extrapolation.CLAMP
     );
@@ -58,29 +62,31 @@ const City = () => {
     return {
       height: height,
       transform: [{ translateY: translateY }, { scale: scale }],
-      overflow: "hidden",
     };
   });
 
   const animatedTitleStyle = useAnimatedStyle(() => {
     const scale = interpolate(
       scrollOffset.value,
-      [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT / 2],
+      [-BANNER_HEIGHT / 2, 0, BANNER_HEIGHT / 2],
       [1.3, 1, 0.8],
       Extrapolation.CLAMP
     );
 
     const translateY = interpolate(
       scrollOffset.value,
-      [0, HEADER_HEIGHT / 2],
-      [HEADER_HEIGHT - 80, top + ((cHeight - top) / 2 - imageHeight / 1.8)],
+      UPPER_BOUND,
+      [
+        BANNER_HEIGHT - 80,
+        top + ((HEADER_HEIGHT - top) / 2 - IMAGE_HEIGHT / 1.8),
+      ],
       Extrapolation.CLAMP
     );
 
     const translateX = interpolate(
       scrollOffset.value,
-      [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT / 2],
-      [scale * 2 * padding, padding, 2 * imageHeight],
+      [-BANNER_HEIGHT / 2, 0, BANNER_HEIGHT / 2],
+      [scale * 2 * EXTRA_PADDING, EXTRA_PADDING, 2 * IMAGE_HEIGHT],
       Extrapolation.CLAMP
     );
 
@@ -100,54 +106,39 @@ const City = () => {
   });
 
   const animatedImageStyle = useAnimatedStyle(() => {
-    const height = interpolate(
+    const width = interpolate(
       scrollOffset.value,
-      [HEADER_HEIGHT + cHeight, 0, HEADER_HEIGHT - cHeight],
-      [2 * HEADER_HEIGHT - cHeight, HEADER_HEIGHT, HEADER_HEIGHT / 2],
+      UPPER_BOUND,
+      [BANNER_HEIGHT, IMAGE_HEIGHT],
       Extrapolation.CLAMP
     );
 
-    const width = interpolate(
-      height,
-      [HEADER_HEIGHT / 2, HEADER_HEIGHT],
-      [imageHeight, HEADER_HEIGHT]
-    );
-
-    const originX = (HEADER_HEIGHT - width) / 2;
-
     const translateY = interpolate(
-      height,
-      [HEADER_HEIGHT / 3, HEADER_HEIGHT],
-      [top + ((cHeight - top) / 2 - imageHeight / 4), 0],
+      scrollOffset.value,
+      UPPER_BOUND,
+      [0, top + ((HEADER_HEIGHT - top) / 2 - IMAGE_HEIGHT / 1.8)],
       Extrapolation.CLAMP
     );
 
     const translateX = interpolate(
-      height,
-      [0, HEADER_HEIGHT],
-      [
-        -HEADER_HEIGHT +
-          width +
-          (padding + imageHeight / 2) +
-          imageHeight / 4 +
-          (padding / 2 + imageHeight / 2),
-        0,
-      ],
+      scrollOffset.value,
+      UPPER_BOUND,
+      [0, IMAGE_HEIGHT],
       Extrapolation.CLAMP
     );
 
     const borderRadius = interpolate(
-      height,
-      [HEADER_HEIGHT / 3, HEADER_HEIGHT],
-      [HEADER_HEIGHT, 0]
+      scrollOffset.value,
+      UPPER_BOUND,
+      [0, width],
+      Extrapolation.CLAMP
     );
 
     return {
       borderRadius: borderRadius,
-      width: width,
+      aspectRatio: 1,
       maxHeight: width,
       transform: [
-        { translateX: originX },
         {
           translateY,
         },
@@ -159,92 +150,58 @@ const City = () => {
   });
 
   const animatedOverlay = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      scrollOffset.value,
-      [0, HEADER_HEIGHT],
-      ["rgba(0,0,0,0.4)", "rgba(0,0,0,0)"]
-    );
+    const backgroundColor = interpolateColor(scrollOffset.value, UPPER_BOUND, [
+      theme.colors.overlay,
+      "rgba(0,0,0,0)",
+    ]);
     return {
       backgroundColor,
     };
   });
+
+  const ListTitle = () => {
+    return (
+      <Animated.View style={[styles.listTitleContainer, animatedTitleStyle]}>
+        <Text style={[styles.titleStyle, { color: theme.colors.text }]}>
+          Jaipur
+        </Text>
+        <Text style={[styles.subTitleStyle, { color: theme.colors.subtitle }]}>
+          The Pink Jewel of India
+        </Text>
+      </Animated.View>
+    );
+  };
 
   const ListHeaderComponent = () => {
     return (
       <>
         <Animated.View
           pointerEvents={"none"}
-          style={[
-            {
-              height: HEADER_HEIGHT,
-              width: "100%",
-            },
-            animatedHeaderStyle,
-          ]}
+          style={[styles.headerStyle, animatedHeaderStyle]}
         >
           <BlurView style={StyleSheet.absoluteFillObject} />
-          <Animated.View
-            style={[{ flex: 1, overflow: "hidden" }, animatedImageStyle]}
-          >
-            <Image
-              source={{
-                uri: "https://assets.vogue.in/photos/5ddd1c3ea7e434000831059d/2:3/w_2560%2Cc_limit/GILL5066.jpg",
-              }}
-              style={{ flex: 1 }}
-              // transition={500}
-              // placeholder={{ blurhash: "LgKRXksnrqfk}YfPnjayIoWWSgj@" }}
-              // cachePolicy={"none"}
-            />
+          <Animated.View style={[styles.bannerStyle, animatedImageStyle]}>
+            <Image source={IMAGE_URI} style={{ flex: 1 }} />
             <Animated.View
               style={[StyleSheet.absoluteFillObject, animatedOverlay]}
             />
           </Animated.View>
         </Animated.View>
-        <Animated.View
-          style={[
-            {
-              position: "absolute",
-              gap: 2,
-            },
-            animatedTitleStyle,
-          ]}
-        >
-          <Text
-            style={{
-              color: theme.colors.text,
-              fontSize: 25,
-              fontWeight: "500",
-            }}
-          >
-            Jaipur
-          </Text>
-          <Text
-            style={{
-              color: theme.colors.subtitle,
-              fontSize: 15,
-              fontWeight: "400",
-            }}
-          >
-            The Pink Jewel of India
-          </Text>
-        </Animated.View>
+        <ListTitle />
       </>
     );
   };
   return (
-    <View style={{ flex: 1 }}>
-      {/* <ListHeaderComponent /> */}
+    <View style={styles.flexOne}>
       <Animated.ScrollView
         ref={scrollRef}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         stickyHeaderIndices={[0]}
-        contentContainerStyle={{
-          gap: 25,
-          //   paddingHorizontal: 16,
-          //   paddingTop: HEADER_HEIGHT + padding,
-          paddingBottom: bottom,
-        }}
+        contentContainerStyle={[
+          styles.contentContainerStyle,
+          { paddingBottom: bottom },
+        ]}
       >
         <ListHeaderComponent />
         <CityDetails />
@@ -256,4 +213,31 @@ const City = () => {
 
 export default City;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  flexOne: {
+    flex: 1,
+  },
+  contentContainerStyle: {
+    gap: 25,
+  },
+  listTitleContainer: {
+    position: "absolute",
+    gap: 2,
+  },
+  titleStyle: {
+    fontSize: 25,
+    fontWeight: "500",
+  },
+  subTitleStyle: {
+    fontSize: 15,
+    fontWeight: "400",
+  },
+  headerStyle: {
+    height: BANNER_HEIGHT,
+    width: "100%",
+  },
+  bannerStyle: {
+    flex: 1,
+    overflow: "hidden",
+  },
+});
