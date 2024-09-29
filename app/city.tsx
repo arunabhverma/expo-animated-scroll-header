@@ -219,7 +219,6 @@ const City = () => {
       >
         <ListHeaderComponent />
         <CityDetails />
-        <CityDetails />
       </Animated.ScrollView>
     </View>
   );
