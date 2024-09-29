@@ -17,7 +17,7 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import CityDetails from "@/components/CityDetails";
 
 const IMAGE_URI =
-  "https://assets.vogue.in/photos/5ddd1c3ea7e434000831059d/2:3/w_2560%2Cc_limit/GILL5066.jpg";
+  "https://wallpapers.com/images/hd/jal-mahal-water-palace-jaipur-nighttime-uhki0tnbfn2lgovf.jpg";
 const BANNER_HEIGHT = Dimensions.get("window").width;
 const IMAGE_HEIGHT = 50;
 const EXTRA_PADDING = 20;
@@ -25,7 +25,6 @@ const EXTRA_PADDING = 20;
 const City = () => {
   const theme = useTheme();
   const { top, bottom } = useSafeAreaInsets();
-  console.log("top", top + EXTRA_PADDING);
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useSharedValue(0);
 
@@ -195,9 +194,7 @@ const City = () => {
           <BlurView style={StyleSheet.absoluteFillObject} />
           <Animated.View style={[styles.bannerStyle, animatedImageStyle]}>
             <Image source={IMAGE_URI} style={{ flex: 1 }} />
-            <Animated.View
-              style={[StyleSheet.absoluteFillObject, animatedOverlay]}
-            />
+            <Animated.View style={[StyleSheet.absoluteFillObject]} />
           </Animated.View>
         </Animated.View>
         <ListTitle />
