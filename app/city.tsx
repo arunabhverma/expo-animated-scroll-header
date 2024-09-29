@@ -25,6 +25,7 @@ const EXTRA_PADDING = 20;
 const City = () => {
   const theme = useTheme();
   const { top, bottom } = useSafeAreaInsets();
+  console.log("top", top + EXTRA_PADDING);
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useSharedValue(0);
 
@@ -159,6 +160,18 @@ const City = () => {
     };
   });
 
+  const animatedPaddingSupport = useAnimatedStyle(() => {
+    const height = interpolate(
+      scrollOffset.value,
+      [0, BANNER_HEIGHT - HEADER_HEIGHT - 100],
+      [0, BANNER_HEIGHT - HEADER_HEIGHT - 100],
+      Extrapolation.CLAMP
+    );
+    return {
+      height: height,
+    };
+  });
+
   const ListTitle = () => {
     return (
       <Animated.View style={[styles.listTitleContainer, animatedTitleStyle]}>
@@ -188,6 +201,7 @@ const City = () => {
           </Animated.View>
         </Animated.View>
         <ListTitle />
+        <Animated.View style={animatedPaddingSupport} />
       </>
     );
   };
